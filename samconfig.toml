@@ -1,0 +1,12 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "sll-crud-backend"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1wcc1rlbjeh9t"
+s3_prefix = "sll-crud-backend"
+region = "us-east-2"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "AppName=\"sll-crud-app\" Region=\"us-east-2\""
+image_repositories = []
+disable_rollback = true

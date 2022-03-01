@@ -1,0 +1,226 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: back-end functionalities of sll-crudApp project
+
+Globals:
+  Function:
+    Timeout: 30
+    CodeUri: src/
+    Runtime: python3.8
+    Architectures:
+      - x86_64
+
+Parameters:
+  AppName:
+    Type: String
+    Description: Name of the application
+    Default: sll-crud-app
+  Region:
+    Type: String
+    Default: us-east-2
+
+Resources:
+        # ///---------------Dynamo Table-----------------/// 
+  # DynamoTable:
+  #   Type: AWS::DynamoDB::Table
+  #   Properties:
+  #     AttributeDefinitions:
+  #       -
+  #         AttributeName: "PK"
+  #         AttributeType: "S"
+  #       -
+  #         AttributeName: "SK"
+  #         AttributeType: "S"
+  #       -
+  #         AttributeName: "restaurant_id"
+  #         AttributeType: "S"
+  #       -
+  #         AttributeName: "item_id"
+  #         AttributeType: "S"
+  #       -
+  #         AttributeName: "item_name"
+  #         AttributeType: "S"
+  #       -
+  #         AttributeName: "image"
+  #         AttributeType: "S"
+  #       -
+  #         AttributeName: "category"
+  #         AttributeType: "S"
+  #     KeySchema:
+  #       -
+  #         AttributeName: "restaurant_id"
+  #         KeyType: "HASH"
+  #       -
+  #         AttributeName: "item_id"
+  #         KeyType: "RANGE"
+  #     ProvisionedThroughput:
+  #       ReadCapacityUnits: "5"
+  #       WriteCapacityUnits: "5"
+  #     TableName: "Menu_Item"
+        # ///---------------Roles and Policies-----------------/// 
+
+ 
+        # ///---------------API's-----------------/// 
+  DefaultApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      GatewayResponses:
+        DEFAULT_4XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'*'"
+        DEFAULT_5XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'*'"
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+
+        # ///---------------Lambda Functions-----------------/// 
+  CreateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: create_fn.lambda_handler
+      Environment:
+        Variables:
+          REGION: !Ref Region      
+      # Role: !GetAtt 
+      # Policies:
+      #   - DynamoDBCrudPolicy:
+      #       TableName: !Ref DynamoTable
+      Events:
+        SignUp:
+          Type: Api
+          Properties:
+            Path:  /create
+            Method: post
+            RestApiId: !Ref DefaultApi
+
+  ReadFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: read_fn.lambda_handler
+      Environment:
+        Variables:
+          REGION: !Ref Region      
+      # Role: !GetAtt 
+      # Policies:
+      #   - DynamoDBCrudPolicy:
+      #       TableName: !Ref DynamoTable
+      Events:
+        SignUp:
+          Type: Api
+          Properties:
+            Path:  /read
+            Method: post
+            RestApiId: !Ref DefaultApi
+
+  UpdateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: update_fn.lambda_handler
+      Environment:
+        Variables:
+          REGION: !Ref Region      
+      # Role: !GetAtt 
+      # Policies:
+      #   - DynamoDBCrudPolicy:
+      #       TableName: !Ref DynamoTable
+      Events:
+        SignUp:
+          Type: Api
+          Properties:
+            Path:  /update
+            Method: post
+            RestApiId: !Ref DefaultApi
+
+  DeleteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: delete_fn.lambda_handler
+      Environment:
+        Variables:
+          REGION: !Ref Region      
+      # Role: !GetAtt 
+      # Policies:
+      #   - DynamoDBCrudPolicy:
+      #       TableName: !Ref DynamoTable
+      Events:
+        SignUp:
+          Type: Api
+          Properties:
+            Path:  /delete
+            Method: post
+            RestApiId: !Ref DefaultApi
+
+  ListFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: list_fn.lambda_handler
+      Environment:
+        Variables:
+          REGION: !Ref Region      
+      # Role: !GetAtt 
+      # Policies:
+      #   - DynamoDBCrudPolicy:
+      #       TableName: !Ref DynamoTable
+      Events:
+        SignUp:
+          Type: Api
+          Properties:
+            Path:  /list
+            Method: post
+            RestApiId: !Ref DefaultApi
+
+
+        # ///---------------Bucket-----------------/// 
+  # S3Bucket:
+  #   Type: 'AWS::S3::Bucket'
+  #   Properties:
+  #     BucketName: sll-crud-app
+  #     CorsConfiguration:
+  #       CorsRules:
+  #         - AllowedHeaders: 
+  #             - '*'
+  #           AllowedOrigins: 
+  #             - '*'
+  #           AllowedMethods:
+  #             - PUT
+  #             - POST 
+  #             - DELETE
+  #             - GET
+  #           AllowedOrigins: 
+  #             - '*'
+  #           ExposedHeaders:
+  #             - ETag
+  #             - x-amz-meta-custom-header
+
+Outputs:
+
+  CreateFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Create function"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/create/"
+
+  ReadFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Read function"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/read/"
+  
+  UpdateFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Update function"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update/"
+
+  DeleteFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Delete function"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/delete/"
+
+  ListFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for List function"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/list/"
+
+
+
