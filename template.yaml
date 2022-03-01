@@ -21,42 +21,27 @@ Parameters:
 
 Resources:
         # ///---------------Dynamo Table-----------------/// 
-  # DynamoTable:
-  #   Type: AWS::DynamoDB::Table
-  #   Properties:
-  #     AttributeDefinitions:
-  #       -
-  #         AttributeName: "PK"
-  #         AttributeType: "S"
-  #       -
-  #         AttributeName: "SK"
-  #         AttributeType: "S"
-  #       -
-  #         AttributeName: "restaurant_id"
-  #         AttributeType: "S"
-  #       -
-  #         AttributeName: "item_id"
-  #         AttributeType: "S"
-  #       -
-  #         AttributeName: "item_name"
-  #         AttributeType: "S"
-  #       -
-  #         AttributeName: "image"
-  #         AttributeType: "S"
-  #       -
-  #         AttributeName: "category"
-  #         AttributeType: "S"
-  #     KeySchema:
-  #       -
-  #         AttributeName: "restaurant_id"
-  #         KeyType: "HASH"
-  #       -
-  #         AttributeName: "item_id"
-  #         KeyType: "RANGE"
-  #     ProvisionedThroughput:
-  #       ReadCapacityUnits: "5"
-  #       WriteCapacityUnits: "5"
-  #     TableName: "Menu_Item"
+  DynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: "Menu_Item"
+      AttributeDefinitions:
+        -
+          AttributeName: "PK"
+          AttributeType: "S"
+        -
+          AttributeName: "SK"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "PK"
+          KeyType: "HASH"
+        -
+          AttributeName: "SK"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
         # ///---------------Roles and Policies-----------------/// 
 
  
@@ -90,11 +75,11 @@ Resources:
         Variables:
           REGION: !Ref Region      
       # Role: !GetAtt 
-      # Policies:
-      #   - DynamoDBCrudPolicy:
-      #       TableName: !Ref DynamoTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoTable
       Events:
-        SignUp:
+        CreateEvent:
           Type: Api
           Properties:
             Path:  /create
@@ -109,11 +94,11 @@ Resources:
         Variables:
           REGION: !Ref Region      
       # Role: !GetAtt 
-      # Policies:
-      #   - DynamoDBCrudPolicy:
-      #       TableName: !Ref DynamoTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoTable
       Events:
-        SignUp:
+        ReadEvent:
           Type: Api
           Properties:
             Path:  /read
@@ -128,11 +113,11 @@ Resources:
         Variables:
           REGION: !Ref Region      
       # Role: !GetAtt 
-      # Policies:
-      #   - DynamoDBCrudPolicy:
-      #       TableName: !Ref DynamoTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoTable
       Events:
-        SignUp:
+        UpdateEvent:
           Type: Api
           Properties:
             Path:  /update
@@ -147,11 +132,11 @@ Resources:
         Variables:
           REGION: !Ref Region      
       # Role: !GetAtt 
-      # Policies:
-      #   - DynamoDBCrudPolicy:
-      #       TableName: !Ref DynamoTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoTable
       Events:
-        SignUp:
+        DeleteEvent:
           Type: Api
           Properties:
             Path:  /delete
@@ -166,11 +151,11 @@ Resources:
         Variables:
           REGION: !Ref Region      
       # Role: !GetAtt 
-      # Policies:
-      #   - DynamoDBCrudPolicy:
-      #       TableName: !Ref DynamoTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoTable
       Events:
-        SignUp:
+        ListEvent:
           Type: Api
           Properties:
             Path:  /list
@@ -179,26 +164,26 @@ Resources:
 
 
         # ///---------------Bucket-----------------/// 
-  # S3Bucket:
-  #   Type: 'AWS::S3::Bucket'
-  #   Properties:
-  #     BucketName: sll-crud-app
-  #     CorsConfiguration:
-  #       CorsRules:
-  #         - AllowedHeaders: 
-  #             - '*'
-  #           AllowedOrigins: 
-  #             - '*'
-  #           AllowedMethods:
-  #             - PUT
-  #             - POST 
-  #             - DELETE
-  #             - GET
-  #           AllowedOrigins: 
-  #             - '*'
-  #           ExposedHeaders:
-  #             - ETag
-  #             - x-amz-meta-custom-header
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: sll-crud-app
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: 
+              - '*'
+            AllowedOrigins: 
+              - '*'
+            AllowedMethods:
+              - PUT
+              - POST 
+              - DELETE
+              - GET
+            AllowedOrigins: 
+              - '*'
+            ExposedHeaders:
+              - ETag
+              - x-amz-meta-custom-header
 
 Outputs:
 
@@ -221,6 +206,14 @@ Outputs:
   ListFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for List function"
     Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/list/"
+
+  BucketName:
+    Value: !Ref S3Bucket
+    Description: SLLCrudBucket Amazon S3 bucket with CORS enabled.
+
+  DynamoTableName:
+    Value: !Ref DynamoTable
+    Description: Amazon DynamoDB Table
 
 
 
