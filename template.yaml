@@ -14,12 +14,67 @@ Parameters:
   AppName:
     Type: String
     Description: Name of the application
-    Default: sll-crud-app
+    Default: sll-crud
   Region:
     Type: String
     Default: us-east-2
+  ClientDomains:
+    Type: CommaDelimitedList
+    Description: List of domains
 
 Resources:
+
+        # ///---------------User Pool-----------------/// 
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub ${AppName}-UserPool
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      ClientName: !Sub ${AppName}-UserPoolClient
+      GenerateSecret: false
+      SupportedIdentityProviders:
+        - COGNITO
+      CallbackURLs: !Ref ClientDomains
+      LogoutURLs: !Ref ClientDomains
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows:
+        - code
+        - implicit
+        # - client_credentials
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties: 
+      Domain: !Sub ${AppName}-${AWS::AccountId}
+      UserPoolId: !Ref UserPool
+
+  UserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties: 
+      GroupName: !Sub ${AppName}-Users
+      Description: User Group
+      Precedence: 0
+      UserPoolId: !Ref UserPool
+
         # ///---------------Dynamo Table-----------------/// 
   DynamoTable:
     Type: AWS::DynamoDB::Table
@@ -42,8 +97,42 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-        # ///---------------Roles and Policies-----------------/// 
 
+        # ///---------------Roles and Policies-----------------/// 
+  CognitoRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - 'lambda.amazonaws.com'
+                - 'mediaconvert.amazonaws.com'
+                - 'cloudfront.amazonaws.com'
+                - !Sub "states.${AWS::Region}.amazonaws.com"
+                - 'mediapackage.amazonaws.com'
+                - 'rds.amazonaws.com'
+                - 'secretsmanager.amazonaws.com'
+                - 'dax.amazonaws.com'
+            Action: 
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - "cloudwatch:*"
+                  - "cognito-identity:*"
+                  - "cognito-idp:*"
+                  - "cognito-sync:*"
+                  - "dynamodb:*"
+                Resource: '*'
  
         # ///---------------API's-----------------/// 
   DefaultApi:
@@ -67,15 +156,16 @@ Resources:
         AllowOrigin: "'*'"
 
         # ///---------------Lambda Functions-----------------/// 
-  CreateFunction:
+  ListItemsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: create_fn.lambda_handler
+      Handler: list_fn.lambda_handler
       Environment:
         Variables:
           REGION: !Ref Region  
-          TABLE_NAME: !Ref DynamoTable    
-      # Role: !GetAtt 
+          TABLE_NAME: !Ref DynamoTable  
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient  
+      Role: !GetAtt CognitoRole.Arn
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoTable
@@ -83,7 +173,7 @@ Resources:
         CreateEvent:
           Type: Api
           Properties:
-            Path:  /create
+            Path:  /list
             Method: post
             RestApiId: !Ref DefaultApi
 
@@ -94,8 +184,9 @@ Resources:
       Environment:
         Variables:
           REGION: !Ref Region 
-          TABLE_NAME: !Ref DynamoTable     
-      # Role: !GetAtt 
+          TABLE_NAME: !Ref DynamoTable   
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient  
+      Role: !GetAtt CognitoRole.Arn
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoTable
@@ -115,7 +206,8 @@ Resources:
         Variables:
           REGION: !Ref Region  
           TABLE_NAME: !Ref DynamoTable    
-      # Role: !GetAtt 
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+      Role: !GetAtt CognitoRole.Arn 
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoTable
@@ -134,8 +226,9 @@ Resources:
       Environment:
         Variables:
           REGION: !Ref Region 
-          TABLE_NAME: !Ref DynamoTable     
-      # Role: !GetAtt 
+          TABLE_NAME: !Ref DynamoTable  
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient   
+      Role: !GetAtt CognitoRole.Arn
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoTable
@@ -155,7 +248,8 @@ Resources:
         Variables:
           REGION: !Ref Region      
           TABLE_NAME: !Ref DynamoTable
-      # Role: !GetAtt 
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+      Role: !GetAtt CognitoRole.Arn
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoTable
@@ -172,7 +266,7 @@ Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket'
     Properties:
-      BucketName: sll-crud-app
+      BucketName: !Sub ${AppName}-bucket
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders: 
@@ -192,9 +286,9 @@ Resources:
 
 Outputs:
 
-  CreateFunctionApi:
-    Description: "API Gateway endpoint URL for Prod stage for Create function"
-    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/create/"
+  ListItemsFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for List Items function"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/list/"
 
   ReadFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Read function"

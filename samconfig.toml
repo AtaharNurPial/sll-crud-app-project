@@ -7,6 +7,5 @@ s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1wcc1rlbjeh9t"
 s3_prefix = "sll-crud-backend"
 region = "us-east-2"
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "AppName=\"sll-crud-app\" Region=\"us-east-2\""
+parameter_overrides = "AppName=\"sll-crud\" Region=\"us-east-2\" ClientDomains=\"https://www.example.com/callback,https://www.example.com/signout\""
 image_repositories = []
-disable_rollback = true

@@ -5,6 +5,10 @@ from typing import List,Any
 RESTAURANT_PREFIX = '#RESTAURANT#'
 ITEM_PREFIX = '#ITEM#'
 
+class UserModel(BaseModel):
+    email: str
+    password: str
+
 class Variation(BaseModel):
     name: str = ''
     price: str = ''
