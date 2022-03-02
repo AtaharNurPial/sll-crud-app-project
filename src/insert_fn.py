@@ -2,6 +2,8 @@
 import json
 from BaseModel import base_model
 
+result = base_model.display()
+
 def lambda_handler(event, context):
     print(event)
     header = {
@@ -13,6 +15,6 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'headers': header,
         'body': json.dumps({
-            'message': 'hello from insert function'
+            'message': result
         })
     }
