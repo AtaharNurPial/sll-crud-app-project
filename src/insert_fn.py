@@ -13,6 +13,6 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'headers': header,
         'body': json.dumps({
-            'message': 'hello from read function'
+            'message': 'hello from insert function'
         })
     }

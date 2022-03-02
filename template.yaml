@@ -73,7 +73,8 @@ Resources:
       Handler: create_fn.lambda_handler
       Environment:
         Variables:
-          REGION: !Ref Region      
+          REGION: !Ref Region  
+          TABLE_NAME: !Ref DynamoTable    
       # Role: !GetAtt 
       Policies:
         - DynamoDBCrudPolicy:
@@ -92,7 +93,8 @@ Resources:
       Handler: read_fn.lambda_handler
       Environment:
         Variables:
-          REGION: !Ref Region      
+          REGION: !Ref Region 
+          TABLE_NAME: !Ref DynamoTable     
       # Role: !GetAtt 
       Policies:
         - DynamoDBCrudPolicy:
@@ -111,7 +113,8 @@ Resources:
       Handler: update_fn.lambda_handler
       Environment:
         Variables:
-          REGION: !Ref Region      
+          REGION: !Ref Region  
+          TABLE_NAME: !Ref DynamoTable    
       # Role: !GetAtt 
       Policies:
         - DynamoDBCrudPolicy:
@@ -130,7 +133,8 @@ Resources:
       Handler: delete_fn.lambda_handler
       Environment:
         Variables:
-          REGION: !Ref Region      
+          REGION: !Ref Region 
+          TABLE_NAME: !Ref DynamoTable     
       # Role: !GetAtt 
       Policies:
         - DynamoDBCrudPolicy:
@@ -143,22 +147,23 @@ Resources:
             Method: post
             RestApiId: !Ref DefaultApi
 
-  ListFunction:
+  InsertFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: list_fn.lambda_handler
+      Handler: insert_fn.lambda_handler
       Environment:
         Variables:
           REGION: !Ref Region      
+          TABLE_NAME: !Ref DynamoTable
       # Role: !GetAtt 
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoTable
       Events:
-        ListEvent:
+        InsertEvent:
           Type: Api
           Properties:
-            Path:  /list
+            Path:  /insert
             Method: post
             RestApiId: !Ref DefaultApi
 
@@ -203,9 +208,9 @@ Outputs:
     Description: "API Gateway endpoint URL for Prod stage for Delete function"
     Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/delete/"
 
-  ListFunctionApi:
-    Description: "API Gateway endpoint URL for Prod stage for List function"
-    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/list/"
+  InsertFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Insert function"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/insert/"
 
   BucketName:
     Value: !Ref S3Bucket
