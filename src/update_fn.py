@@ -1,5 +1,4 @@
-
-
+from typing import List
 import os
 import boto3
 import json
@@ -31,19 +30,19 @@ def lambda_handler(event, context):
             },
             ExpressionAttributeNames={
             '#IN': 'item_name',
-            '#I': 'ingredients',
+            # '#I': 'ingredients',
             '#V': 'variations',
             '#IMG': 'image',
             '#C': 'category'
             },
             ExpressionAttributeValues={
             ':item_name': menu_item.item_name,
-            ':ingredients': menu_item.ingredients,
+            ':ingredients': menu_item.ingredients,    
             ':variations': menu_item.dict()['variations'],
             ':image': menu_item.image,
             ':category': menu_item.category
             },
-            UpdateExpression='set #IN = :item_name, #I = :ingredients, #V = :variation, #IMG = :image ,#C = :category',
+            UpdateExpression='set #IN = :item_name, #I = :ingredients, #V = :variations, #IMG = :image , #C = :category',
             ReturnValues = 'ALL_NEW'
         )
         print(table_response)
