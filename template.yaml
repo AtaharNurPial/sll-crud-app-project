@@ -309,6 +309,7 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: !Sub ${AppName}-bucket
+      AccessControl: PublicReadWrite
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders: 
