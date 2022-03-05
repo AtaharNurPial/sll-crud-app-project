@@ -6,7 +6,7 @@ Globals:
   Function:
     Timeout: 30
     CodeUri: src/
-    Runtime: python3.9
+    Runtime: python3.8
     Architectures:
       - x86_64
 
@@ -261,6 +261,48 @@ Resources:
             Method: post
             RestApiId: !Ref DefaultApi
 
+  SignupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: sign_up.lambda_handler
+      Environment:
+        Variables:
+          REGION: !Ref Region      
+          # TABLE_NAME: !Ref DynamoTable
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+      Role: !GetAtt CognitoRole.Arn
+      # Policies:
+      #   - DynamoDBCrudPolicy:
+      #       TableName: !Ref DynamoTable
+      Events:
+        SignupEvent:
+          Type: Api
+          Properties:
+            Path:  /sign_up
+            Method: post
+            RestApiId: !Ref DefaultApi
+
+  LoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: login_fn.lambda_handler
+      Environment:
+        Variables:
+          REGION: !Ref Region      
+          # TABLE_NAME: !Ref DynamoTable
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+      Role: !GetAtt CognitoRole.Arn
+      # Policies:
+      #   - DynamoDBCrudPolicy:
+      #       TableName: !Ref DynamoTable
+      Events:
+        LoginEvent:
+          Type: Api
+          Properties:
+            Path:  /login
+            Method: post
+            RestApiId: !Ref DefaultApi
+
 
         # ///---------------Bucket-----------------/// 
   S3Bucket:
@@ -305,6 +347,14 @@ Outputs:
   InsertFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Insert function"
     Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/insert/"
+
+  SignupFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Signup function"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/sign_up/"
+
+  LoginFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Login function"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/login/"
 
   BucketName:
     Value: !Ref S3Bucket

@@ -1,6 +1,7 @@
 import pydantic
 from pydantic import BaseModel
 from typing import List,Any
+from ksuid import ksuid
 
 RESTAURANT_PREFIX = '#RESTAURANT#'
 ITEM_PREFIX = '#ITEM#'
@@ -29,9 +30,12 @@ class Menu_Item(BaseModel):
         super().__init__(**data)
         self.PK = f"{RESTAURANT_PREFIX}{self.restaurant_id}"
         self.SK = f"{ITEM_PREFIX}{self.item_id}"
+
+        if self.item_id == '':
+            self.item_id = ksuid().__str__()
 def display():
     test_variation = Variation(name= 'botella', price='33',currency='$')
-    test_menuItem = Menu_Item(restaurant_id='1235',item_id='b23',item_name='testItem',
+    test_menuItem = Menu_Item(restaurant_id='1235',item_id='',item_name='testItem',
                 ingredients=['air','water','fire','earth'],
                 variations=[test_variation],image='testImage',category='Food')
 
