@@ -30,7 +30,7 @@ def lambda_handler(event, context):
             },
             ExpressionAttributeNames={
             '#IN': 'item_name',
-            # '#I': 'ingredients',
+            '#I': 'ingredients',
             '#V': 'variations',
             '#IMG': 'image',
             '#C': 'category'
