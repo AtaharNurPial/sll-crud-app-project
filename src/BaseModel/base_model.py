@@ -28,11 +28,13 @@ class Menu_Item(BaseModel):
 
     def __init__(self, **data: Any) -> None:
         super().__init__(**data)
+        if self.item_id == '':
+            self.item_id = ksuid().__str__()
+            # print(type(self.item_id))
+        
         self.PK = f"{RESTAURANT_PREFIX}{self.restaurant_id}"
         self.SK = f"{ITEM_PREFIX}{self.item_id}"
 
-        if self.item_id == '':
-            self.item_id = ksuid().__str__()
 def display():
     test_variation = Variation(name= 'botella', price='33',currency='$')
     test_menuItem = Menu_Item(restaurant_id='1235',item_id='',item_name='testItem',
