@@ -268,17 +268,32 @@ Resources:
       Environment:
         Variables:
           REGION: !Ref Region      
-          # TABLE_NAME: !Ref DynamoTable
           COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
       Role: !GetAtt CognitoRole.Arn
-      # Policies:
-      #   - DynamoDBCrudPolicy:
-      #       TableName: !Ref DynamoTable
       Events:
         SignupEvent:
           Type: Api
           Properties:
             Path:  /sign_up
+            Method: post
+            RestApiId: !Ref DefaultApi
+
+  ConfirmSignupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 5
+      Handler: confirm_signup.lambda_handler
+      Runtime: python3.8
+      CodeUri: src/
+      Environment:
+        Variables:
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+      Role: !GetAtt CognitoRole.Arn
+      Events:
+        ConfirmSignUp:
+          Type: Api
+          Properties:
+            Path:  /confirm_signup
             Method: post
             RestApiId: !Ref DefaultApi
 
@@ -292,9 +307,6 @@ Resources:
           # TABLE_NAME: !Ref DynamoTable
           COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
       Role: !GetAtt CognitoRole.Arn
-      # Policies:
-      #   - DynamoDBCrudPolicy:
-      #       TableName: !Ref DynamoTable
       Events:
         LoginEvent:
           Type: Api

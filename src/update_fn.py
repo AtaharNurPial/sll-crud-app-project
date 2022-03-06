@@ -41,10 +41,11 @@ def lambda_handler(event, context):
     pk = menu_item.PK
     sk = menu_item.SK
     header = {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': '*',
-            'Content-Type': 'application/json',        
-        }
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': '*',
+        'Access-Control-Allow-Headers': '*',
+    }
     try:
         response = update_item(pk,sk,menu_item)
         return{
