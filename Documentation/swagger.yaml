@@ -1,0 +1,290 @@
+swagger: "2.0"
+info:
+  description: "This is a sample sll-crud-app server."
+  version: "1.0.0"
+  title: "sll-crud-app"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "2lj3snmok5.execute-api.us-east-2.amazonaws.com"
+basePath: "/Prod"
+tags:
+- name: "Table"
+  description: "Operations on the DB Table"
+- name: "User"
+  description: "Operations about user"
+schemes:
+- "https"
+- "http"
+
+paths:
+  /insert:
+    post:
+      tags:
+      - "Table"
+      summary: "Insert a new item to the database"
+      description: ""
+      operationId: "insertItem"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "item object that needs to be added to the database"
+        required: true
+        schema:
+          $ref: "#/definitions/Menu_item"
+      responses:
+        "200":
+          description: "Item Inserted"
+        "400":
+          description: "Invalid input"
+
+  /list:
+    post:
+      tags:
+      - "Table"
+      summary: "Insert a new item to the database"
+      description: ""
+      operationId: "listItem"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "List all items of a restaurant"
+        required: true
+        schema:
+          $ref: "#/definitions/PK"
+      responses:
+        "200":
+          description: "Item Inserted"
+        "400":
+          description: "Invalid input"
+
+  /read:
+    post:
+      tags:
+      - "Table"
+      summary: "Insert a new item to the database"
+      description: ""
+      operationId: "readItem"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Shows an items from the database"
+        required: true
+        schema:
+          $ref: "#/definitions/KeyId"
+      responses:
+        "200":
+          description: "Single Item"
+          
+  /delete:
+    post:
+      tags:
+      - "Table"
+      summary: "Insert a new item to the database"
+      description: ""
+      operationId: "deleteItem"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Delete an items from the database"
+        required: true
+        schema:
+          $ref: "#/definitions/KeyId"
+      responses:
+        "200":
+          description: "Item Deleted"
+
+  /update:
+    post:
+      tags:
+      - "Table"
+      summary: "Update an item to the database"
+      description: ""
+      operationId: "updateItem"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "item object that needs to be added to the database"
+        required: true
+        schema:
+          $ref: "#/definitions/Menu_item"
+      responses:
+        "200":
+          description: "Item Updated"
+        "400":
+          description: "Invalid input"
+          
+  /sign_up:
+    post:
+      tags:
+      - "User"
+      summary: "Registers user into the system"
+      description: ""
+      operationId: "signupUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: 'user signup. Parameter: user email as "username" and password as "password"'
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        "200":
+          description: "Sign up successful.Check email for confirmation code."
+        "400":
+          description: "Invalid username/password supplied"
+          
+  /confirm_signup:
+    post:
+      tags:
+      - "User"
+      summary: "Validates user into the system"
+      description: ""
+      operationId: "confirmSignupUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: 'user confirmation. Parameter: user email as "username" and confirmation code as "confirm_code"'
+        required: true
+        schema:
+          $ref: "#/definitions/ConfirmUser"
+      responses:
+        "200":
+          description: "Sign up confirmed."
+        "400":
+          description: "Invalid username/password supplied"
+
+  /login:
+    post:
+      tags:
+      - "User"
+      summary: "Logs user into the system"
+      description: ""
+      operationId: "loginUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: 'user login. Parameter: user email as "username" and password as "password"'
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        "200":
+          description: "Login successful"
+        "400":
+          description: "Invalid username/password supplied"
+
+
+definitions:
+  Variations:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      price:
+        type: "string"
+      currency:
+        type: "string"
+    xml:
+      name: "Variations"
+  PK:
+    type: "object"
+    properties:
+      PK:
+        type: "string"
+    xml:
+      name: "PK"
+  KeyId:
+    type: "object"
+    properties:
+      pk:
+        type: "string"
+      sk:
+        type: "string"
+    xml:
+      name: "KeyId"
+  User:
+    type: "object"
+    properties:
+      username:
+        type: "string"
+      password:
+        type: "string"
+    xml:
+      name: "User"
+  ConfirmUser:
+    type: "object"
+    properties:
+      username:
+        type: "string"
+      confirm_code:
+        type: "string"
+    xml:
+      name: "ConfirmUser"
+  Menu_item:
+    type: "object"
+    required:
+    - "PK"
+    - "SK"
+    properties:
+      PK:
+        type: "string"
+      SK:
+        type: "string"
+      restaurant_id:
+        type: "string"
+      item_id:
+        type: "string"
+      item_name:
+        type: "string"
+      ingredients:
+        type: "array"
+        items:
+          type: "string"
+      variations:
+        $ref: "#/definitions/Variations"
+      image:
+        type: "string"
+      category:
+        type: "string"
+    xml:
+      name: "Menu_item"

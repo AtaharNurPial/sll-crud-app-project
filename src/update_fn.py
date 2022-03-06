@@ -79,8 +79,7 @@ def lambda_handler(event, context):
             'headers': header,
             'body': json.dumps({
                 'message': 'Item updated Successfully',
-                # 'value': menu_item.dict()
-                'value': response
+                'value': menu_item.dict()
             })
         }
     except ValidationError as e:

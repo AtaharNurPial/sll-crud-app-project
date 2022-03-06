@@ -282,6 +282,25 @@ Resources:
             Method: post
             RestApiId: !Ref DefaultApi
 
+  ConfirmSignupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 5
+      Handler: confirm_signup.lambda_handler
+      Runtime: python3.8
+      CodeUri: src/
+      Environment:
+        Variables:
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+      Role: !GetAtt CognitoRole.Arn
+      Events:
+        ConfirmSignUp:
+          Type: Api
+          Properties:
+            Path:  /confirm_signup
+            Method: post
+            RestApiId: !Ref DefaultApi
+
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
