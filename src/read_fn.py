@@ -10,6 +10,7 @@ table = dynamodb.Table(table_name)
 
 def read_item(pk,sk):
     table_response = table.get_item(
+        TableName = table_name,
         Key={
             'PK': pk,
             'SK': sk

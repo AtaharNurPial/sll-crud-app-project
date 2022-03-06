@@ -9,6 +9,7 @@ table = dynamodb.Table(table_name)
 
 def insert_into(menu_item):
     table_response = table.put_item(
+        TableName = table_name,
         Item=menu_item.dict(),
         # ConditionExpression = 'attribute_not_exists(menu_item.PK) & attribute_not_exists(menu_item.SK)'
     )

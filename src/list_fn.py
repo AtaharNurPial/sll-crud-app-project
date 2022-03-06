@@ -9,6 +9,7 @@ table = dynamodb.Table(table_name)
 
 def list_item(pk):
     table_response = table.query(
+        TableName = table_name,
         KeyConditionExpression=Key('PK').eq(pk)
     )
     print(table_response)
