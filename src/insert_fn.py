@@ -11,7 +11,7 @@ def insert_into(menu_item):
     table_response = table.put_item(
         TableName = table_name,
         Item=menu_item.dict(),
-        # ConditionExpression = 'attribute_not_exists(menu_item.PK) & attribute_not_exists(menu_item.SK)'
+        # ConditionExpression = 'attribute_not_exists(PK) & attribute_not_exists(SK)'
     )
     print(table_response)
     return table_response
@@ -49,6 +49,18 @@ def lambda_handler(event, context):
                 'message': str(e)
             })
         }
+    except table.exceptions.ConditionalCheckFailedException as e:
+        print(e)
+        return{
+            'statusCode': 400,
+            'headers': header,
+            'body': json.dumps({
+                'error': True,
+                'code': 'CONDITION_EVALUATION_FAILED',
+                'message': 'The Table already has entry with same PK and SK. Please try again'
+            })
+        }
+
     except table.exceptions.ResourceNotFoundException as e:
         print(e)
         return{

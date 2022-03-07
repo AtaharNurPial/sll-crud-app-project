@@ -55,3 +55,14 @@ def lambda_handler(event, context):
                 'message': str(e)
             })
         }
+    except table.exceptions.ResourceNotFoundException as e:
+        print(e)
+        return {
+            'statusCode': 400,
+            'headers': header,
+            'body': json.dumps({
+            'error': True,
+            'code': 'RESOURCE_NOT_FOUND',
+            'message': 'The table is not valid or the resource is not specifiend correctly.Please try again.'
+            })
+        }

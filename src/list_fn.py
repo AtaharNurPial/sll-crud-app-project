@@ -49,17 +49,6 @@ def lambda_handler(event, context):
                 'message': str(e)
             })
         }
-    except table.exceptions.ConditionalCheckFailedException as e:
-        print(e)
-        return{
-            'statusCode': 400,
-            'headers': header,
-            'body': json.dumps({
-                'error': True,
-                'code': 'CONDITIONAL_CHECK_FAILED',
-                'message': 'Conditional check did not match.',
-            })
-        }
     except table.exceptions.ResourceNotFoundException as e:
         print(e)
         return{

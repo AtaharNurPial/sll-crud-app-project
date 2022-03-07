@@ -345,3 +345,9 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/osx,linux,python,windows,pycharm,visualstudiocode,sam
 app.py
+
+# read-pl:
+# {
+#     "pk":"#RESTAURANT#1",
+#     "sk":"#ITEM#0eb136a59936667484f574975a92e032cc22816c"
+# }

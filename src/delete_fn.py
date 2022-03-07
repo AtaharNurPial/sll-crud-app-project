@@ -15,7 +15,8 @@ def delete_item(pk,sk):
         Key={
             'PK': pk,
             'SK': sk
-        }
+        },
+        # ConditionExpression = 'attribute_exists(PK) & attribute_exists(SK)'
     ) 
     print(table_response)
     return table_response
@@ -52,5 +53,27 @@ def lambda_handler(event, context):
                 'error': True,
                 'code': 'VALIDATION_ERROR',
                 'message': str(e)
+            })
+        }
+    except table.exceptions.ResourceNotFoundException as e:
+        print(e)
+        return {
+            'statusCode': 400,
+            'headers': header,
+            'body': json.dumps({
+            'error': True,
+            'code': 'RESOURCE_NOT_FOUND',
+            'message': 'The table is not valid or the resource is not specifiend correctly.Please try again.'
+            })
+        }
+    except table.exceptions.ConditionalCheckFailedException as e:
+        print(e)
+        return{
+            'statusCode': 400,
+            'headers': header,
+            'body': json.dumps({
+                'error': True,
+                'code': 'CONDITION_EVALUATION_FAILED',
+                'message': 'The Table does not have any item with the provided PK and SK. Please try again'
             })
         }

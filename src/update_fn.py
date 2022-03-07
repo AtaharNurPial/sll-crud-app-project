@@ -29,6 +29,7 @@ def update_item(pk,sk, menu_item):
             ':category': menu_item.category
             },
         UpdateExpression='set #IN = :item_name, #I = :ingredients, #V = :variations, #IMG = :image , #C = :category',
+        # ConditionExpression = 'attribute_exists(PK)',
         ReturnValues = 'ALL_NEW'
         )
     print(table_response)
@@ -55,7 +56,7 @@ def lambda_handler(event, context):
                 'error': False,
                 'code': 'UPDATE_SUCCESSFUL',
                 'message': 'Item updated Successfully',
-                'value': response
+                'value': menu_item.dict()
             })
         }
     except ValidationError as e:
@@ -78,7 +79,18 @@ def lambda_handler(event, context):
             'code': 'RESOURCE_NOT_FOUND',
             'message': 'The table is not valid or the resource is not specifiend correctly.Please try again.'
             })
-        }    
+        }  
+    except table.exceptions.ConditionalCheckFailedException as e:
+        print(e)
+        return{
+            'statusCode': 400,
+            'headers': header,
+            'body': json.dumps({
+                'error': True,
+                'code': 'CONDITION_EVALUATION_FAILED',
+                'message': 'The Table does not have any item with the provided PK and SK. Please try again'
+            })
+        }  
     except Exception as e:
         print(e)
         return{
