@@ -55,25 +55,14 @@ def lambda_handler(event, context):
                 'message': str(e)
             })
         }
-    except table.exceptions.ResourceNotFoundException as e:
+    except Exception as e:
         print(e)
         return {
             'statusCode': 400,
             'headers': header,
             'body': json.dumps({
             'error': True,
-            'code': 'RESOURCE_NOT_FOUND',
-            'message': 'The table is not valid or the resource is not specifiend correctly.Please try again.'
-            })
-        }
-    except table.exceptions.ConditionalCheckFailedException as e:
-        print(e)
-        return{
-            'statusCode': 400,
-            'headers': header,
-            'body': json.dumps({
-                'error': True,
-                'code': 'CONDITION_EVALUATION_FAILED',
-                'message': 'The Table does not have any item with the provided PK and SK. Please try again'
+            'code': 'UNKNOWN_ERROR',
+            'message': 'Some error occured.Please try again.'
             })
         }
