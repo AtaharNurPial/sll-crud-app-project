@@ -297,6 +297,25 @@ Resources:
             Method: post
             RestApiId: !Ref DefaultApi
 
+  ResendConfirmCodeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 5
+      Handler: resend_code.lambda_handler
+      Runtime: python3.8
+      CodeUri: src/
+      Environment:
+        Variables:
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+      Role: !GetAtt CognitoRole.Arn
+      Events:
+        ConfirmSignUp:
+          Type: Api
+          Properties:
+            Path:  /resend_confirm_code
+            Method: post
+            RestApiId: !Ref DefaultApi
+
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -364,6 +383,14 @@ Outputs:
   SignupFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Signup function"
     Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/sign_up/"
+
+  ConfirmSignupFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Confirm Signup function"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/confirm_signup/"
+
+  ResendConfirmCodeFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Confirm Signup function"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/resend_confirm_code/"
 
   LoginFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Login function"
